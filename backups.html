@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>النسخ الاحتياطي</title>
+<style>
+  :root{ --primary:#1a56a0; --accent:#0d9e52; --bg:#eef1f6; --text:#1c2733; --danger:#c0392b; }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-size:14px;
+    font-family:'Tajawal','Segoe UI',Arial,sans-serif; text-align:right; padding:22px;
+  }
+  h1{ font-size:18px; margin:0 0 4px; color:var(--primary); }
+  .sub{ color:#66758c; margin:0 0 16px; font-size:12.5px; line-height:1.8; }
+  .toolbar{ display:flex; gap:10px; margin-bottom:14px; }
+  button.main-btn{
+    background:var(--primary); color:#fff; border:none; border-radius:8px;
+    padding:9px 16px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
+  }
+  button.main-btn:hover{ background:#164680; }
+  button.main-btn:disabled{ opacity:.5; cursor:not-allowed; }
+  .list{ background:#fff; border-radius:10px; box-shadow:0 4px 16px rgba(20,40,80,.08); overflow:hidden; }
+  .row{ display:flex; align-items:center; justify-content:space-between; padding:11px 14px; border-bottom:1px solid #eef1f6; font-size:13px; }
+  .row:last-child{ border-bottom:none; }
+  .row .meta{ display:flex; flex-direction:column; gap:2px; }
+  .row .date{ font-weight:700; }
+  .row .size{ color:#8593a8; font-size:11.5px; }
+  .row .btns{ display:flex; gap:6px; }
+  .row button{
+    border:1.5px solid #dbe2ec; background:#fff; border-radius:7px; padding:5px 10px;
+    font-size:11.5px; cursor:pointer; font-family:inherit; color:#4b5b70;
+  }
+  .row button:hover{ background:#f6f8fb; }
+  .row button.danger{ color:var(--danger); border-color:#f2c9c3; }
+  .row button.danger:hover{ background:#fbe9e7; }
+  .empty{ padding:30px; text-align:center; color:#8593a8; font-size:13px; }
+  .status{ font-size:12.5px; margin-top:12px; padding:8px 12px; border-radius:8px; display:none; }
+  .status.ok{ display:block; background:#e6f7ec; color:#0d7a3c; }
+  .status.err{ display:block; background:#fbe9e7; color:var(--danger); }
+</style>
+</head>
+<body>
+
+<h1>🗄️ النسخ الاحتياطي</h1>
+<p class="sub" id="roleInfo">جارٍ التحميل…</p>
+
+<div class="toolbar">
+  <button class="main-btn" onclick="createNow()">➕ إنشاء نسخة الآن</button>
+  <button class="main-btn" style="background:#4b5b70" onclick="refresh()">🔄 تحديث القائمة</button>
+</div>
+
+<div class="list" id="list"><div class="empty">جارٍ التحميل…</div></div>
+<div class="status" id="statusBox"></div>
+
+<script>
+function fmtSize(b){
+  if(b < 1024) return b + ' B';
+  if(b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+  return (b/1024/1024).toFixed(1) + ' MB';
+}
+function fmtDate(ms){
+  var d = new Date(ms);
+  function p2(n){ return String(n).padStart(2,'0'); }
+  return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes());
+}
+function showStatus(text, ok){
+  var st = document.getElementById('statusBox');
+  st.className = 'status ' + (ok ? 'ok' : 'err');
+  st.textContent = text;
+}
+
+var isClient = false;
+
+function refresh(){
+  window.posNetwork.getConfig().then(function(cfg){
+    isClient = !cfg || cfg.mode !== 'server';
+    var info = document.getElementById('roleInfo');
+    if(!cfg){ info.textContent = 'لم يُحدَّد دور هذا الجهاز بعد.'; }
+    else if(cfg.mode==='server'){ info.textContent = 'هذا الجهاز خادم رئيسي — النسخ تؤخذ تلقائياً كل 10 دقائق كحد أقصى.'; }
+    else if(cfg.mirror){ info.textContent = 'هذا الجهاز عميل بخاصية المرآة التلقائية مفعّلة — يسحب نسخة من الخادم كل دقيقتين.'; }
+    else { info.textContent = 'هذا الجهاز عميل بلا مرآة تلقائية — لا نسخ محلية متاحة إلا لو أنشأتها يدوياً.'; }
+  });
+  window.posBackup.list().then(function(items){
+    var el = document.getElementById('list');
+    if(!items || !items.length){ el.innerHTML = '<div class="empty">لا توجد نسخ احتياطية بعد.</div>'; return; }
+    el.innerHTML = items.map(function(it, idx){
+      var promoteBtn = isClient ? '<button onclick="promote(\''+esc(it.path)+'\')">🚀 ترقية لخادم</button>' : '';
+      var restoreBtn = !isClient ? '<button onclick="restore(\''+esc(it.path)+'\')">↩ استعادة</button>' : '';
+      return '<div class="row"><div class="meta"><span class="date">'+fmtDate(it.mtime)+(idx===0?' (الأحدث)':'')+'</span>'+
+        '<span class="size">'+fmtSize(it.size)+'</span></div>'+
+        '<div class="btns">'+restoreBtn+promoteBtn+
+        '<button onclick="exportFile(\''+esc(it.path)+'\')">💾 تصدير</button></div></div>';
+    }).join('');
+  });
+}
+function esc(s){ return String(s).replace(/'/g,"\\'"); }
+
+function createNow(){
+  window.posBackup.createNow().then(function(r){
+    showStatus(r && r.ok ? '✔ تم إنشاء نسخة احتياطية جديدة.' : ('✘ '+(r && r.error || 'فشل الإنشاء')), r && r.ok);
+    refresh();
+  });
+}
+function exportFile(p){
+  window.posBackup.export(p).then(function(r){
+    if(r && r.ok) showStatus('✔ تم حفظ النسخة في: '+r.path, true);
+    else if(!(r && r.canceled)) showStatus('✘ '+(r && r.error || 'فشل التصدير'), false);
+  });
+}
+function restore(p){
+  if(!confirm('سيتم استبدال بيانات هذا الجهاز بالكامل بمحتوى هذه النسخة. سيُعاد تشغيل البرنامج بعد الاستعادة. متابعة؟')) return;
+  window.posBackup.restore(p).then(function(r){
+    if(!(r && r.ok)) showStatus('✘ '+(r && r.error || 'فشلت الاستعادة'), false);
+    // عند النجاح في وضع الخادم سيُعاد تشغيل التطبيق تلقائياً
+  });
+}
+function promote(p){
+  if(!confirm('سيتحول هذا الجهاز إلى خادم رئيسي ببيانات هذه النسخة، وسيُعاد تشغيل البرنامج.\nتذكّر تحديث عنوان IP في بقية أجهزة الفروع لاحقاً. متابعة؟')) return;
+  window.posBackup.promote(p).then(function(r){
+    if(!(r && r.ok)) showStatus('✘ '+(r && r.error || 'فشلت الترقية'), false);
+  });
+}
+
+refresh();
+</script>
+</body>
+</html>

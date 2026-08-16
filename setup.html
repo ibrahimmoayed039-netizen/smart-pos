@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>إعداد الاتصال بالشبكة</title>
+<style>
+  :root{ --primary:#1a56a0; --accent:#0d9e52; --bg:#eef1f6; --text:#1c2733; --danger:#c0392b; }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-size:14px;
+    font-family:'Tajawal','Segoe UI',Arial,sans-serif; text-align:right;
+    display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px;
+  }
+  .card{
+    background:#fff; border-radius:14px; box-shadow:0 8px 28px rgba(20,40,80,.12);
+    width:100%; max-width:560px; padding:28px 30px; position:relative;
+  }
+  h1{ font-size:19px; margin:0 0 4px; color:var(--primary); }
+  .sub{ color:#66758c; margin:0 0 22px; font-size:13px; }
+  .modes{ display:flex; gap:12px; margin-bottom:20px; }
+  .mode-btn{
+    flex:1; border:2px solid #dde4ee; background:#fbfcfe; border-radius:10px; padding:16px 10px;
+    cursor:pointer; text-align:center; transition:.15s; font-family:inherit;
+  }
+  .mode-btn:hover{ border-color:#a9c3e6; }
+  .mode-btn.active{ border-color:var(--primary); background:#eaf1fb; }
+  .mode-btn .ic{ font-size:26px; display:block; margin-bottom:6px; }
+  .mode-btn b{ display:block; font-size:14px; margin-bottom:3px; }
+  .mode-btn span{ font-size:12px; color:#66758c; }
+
+  .panel{ display:none; }
+  .panel.show{ display:block; animation:fade .15s ease; }
+  @keyframes fade{ from{opacity:0} to{opacity:1} }
+
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:12.5px; color:#4b5b70; margin-bottom:5px; font-weight:700; }
+  .row{ display:flex; gap:10px; }
+  .row .field{ flex:1; }
+  input[type=text],input[type=number]{
+    width:100%; padding:10px 12px; border:1.5px solid #dbe2ec; border-radius:8px;
+    font-family:inherit; font-size:14px; text-align:left; direction:ltr;
+  }
+  input:focus{ outline:none; border-color:var(--primary); }
+
+  .iplist{ background:#f6f8fb; border:1px solid #e3e8f0; border-radius:10px; padding:12px 14px; margin-top:6px; }
+  .iplist .row-ip{ display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px dashed #e3e8f0; }
+  .iplist .row-ip:last-child{ border-bottom:none; }
+  .iplist .addr{ direction:ltr; font-family:Consolas,monospace; font-size:13.5px; color:var(--primary); font-weight:700; }
+  .badge{ font-size:11px; padding:2px 8px; border-radius:20px; background:#e6efe0; color:var(--accent); font-weight:700; }
+  .badge.vpn{ background:#e8effb; color:var(--primary); }
+  .copy-btn{ border:none; background:#eef1f6; border-radius:6px; padding:3px 9px; font-size:11px; cursor:pointer; color:#4b5b70; }
+  .copy-btn:hover{ background:#e2e7ee; }
+
+  .hint{ font-size:12px; color:#7a8aa0; margin-top:8px; line-height:1.9; }
+  .hint a{ color:var(--primary); }
+
+  .status{ font-size:13px; margin-top:10px; padding:8px 12px; border-radius:8px; display:none; }
+  .status.ok{ display:block; background:#e6f7ec; color:#0d7a3c; }
+  .status.err{ display:block; background:#fbe9e7; color:var(--danger); }
+  .status.pending{ display:block; background:#eef3fb; color:var(--primary); }
+
+  .actions{ display:flex; gap:10px; margin-top:22px; }
+  button.main-btn{
+    flex:1; background:var(--primary); color:#fff; border:none; border-radius:9px;
+    padding:12px; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit;
+  }
+  button.main-btn:hover{ background:#164680; }
+  button.main-btn:disabled{ opacity:.55; cursor:not-allowed; }
+  button.ghost-btn{
+    background:#fff; color:#4b5b70; border:1.5px solid #dbe2ec; border-radius:9px;
+    padding:12px 16px; font-size:13.5px; cursor:pointer; font-family:inherit;
+  }
+  button.ghost-btn:hover{ background:#f6f8fb; }
+
+  .tabs-vpn{ display:flex; gap:8px; margin:14px 0 6px; }
+  .tabs-vpn button{
+    flex:1; border:1px solid #dbe2ec; background:#fff; border-radius:7px; padding:6px; font-size:12px;
+    cursor:pointer; font-family:inherit; color:#4b5b70;
+  }
+  .tabs-vpn button.on{ background:var(--primary); color:#fff; border-color:var(--primary); }
+  .vpn-box{ display:none; background:#f6f8fb; border:1px solid #e3e8f0; border-radius:9px; padding:12px 14px; font-size:12.5px; line-height:2; color:#3d4a5e; }
+  .vpn-box.show{ display:block; }
+  .vpn-box b{ color:var(--text); }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1>⚙ إعداد الاتصال بين الأجهزة</h1>
+  <p class="sub">اختر دور هذا الجهاز — هذا الإعداد يُحفظ ولن يظهر لاحقاً إلا إذا فتحته يدوياً من إعدادات الشبكة.</p>
+
+  <div class="modes">
+    <button class="mode-btn" id="btnServer" onclick="selectMode('server')">
+      <span class="ic">🖥️</span><b>خادم رئيسي</b><span>هذا الجهاز يحفظ البيانات ويخدم بقية الأجهزة</span>
+    </button>
+    <button class="mode-btn" id="btnClient" onclick="selectMode('client')">
+      <span class="ic">🧾</span><b>عميل (فرع/كاشير)</b><span>يتصل بخادم موجود على جهاز آخر</span>
+    </button>
+  </div>
+
+  <!-- وضع الخادم -->
+  <div class="panel" id="panelServer">
+    <div class="field">
+      <label>المنفذ (Port)</label>
+      <input type="number" id="serverPort" value="5000">
+    </div>
+    <div class="field">
+      <label>عناوين الاتصال — أعطِ أحدها لأجهزة الفروع</label>
+      <div class="iplist" id="ipList"><div class="hint">جارٍ البحث عن عناوين الشبكة…</div></div>
+    </div>
+    <div class="tabs-vpn">
+      <button class="on" onclick="showVpn('lan',this)">نفس الشبكة المحلية</button>
+      <button onclick="showVpn('radmin',this)">Radmin VPN</button>
+      <button onclick="showVpn('tailscale',this)">Tailscale</button>
+    </div>
+    <div class="vpn-box show" id="vpnLan">
+      إذا كانت كل الأجهزة على نفس الراوتر (نفس الواي فاي/الشبكة)، يكفي إعطاء الفروع عنوان
+      <b>«شبكة محلية (LAN)»</b> الظاهر أعلاه — لا حاجة لأي برنامج إضافي.
+    </div>
+    <div class="vpn-box" id="vpnRadmin">
+      لربط فروع في أماكن مختلفة: ثبّت <b>Radmin VPN</b> من radmin-vpn.com على هذا الجهاز وعلى كل جهاز فرع،
+      أنشئ شبكة جديدة من هذا الجهاز وشارك اسمها وكلمة مرورها مع الفروع للانضمام، ثم استخدم عنوان
+      <b>Radmin VPN</b> الظاهر أعلاه (يبدأ عادة بـ 26.x.x.x) بدل عنوان الشبكة المحلية.
+    </div>
+    <div class="vpn-box" id="vpnTailscale">
+      لربط فروع في أماكن مختلفة: ثبّت <b>Tailscale</b> من tailscale.com على هذا الجهاز وكل جهاز فرع،
+      وسجّل دخول بنفس الحساب على الجميع (Tailnet واحد)، ثم استخدم عنوان
+      <b>Tailscale</b> الظاهر أعلاه (يبدأ عادة بـ 100.x.x.x) بدل عنوان الشبكة المحلية.
+    </div>
+  </div>
+
+  <!-- وضع العميل -->
+  <div class="panel" id="panelClient">
+    <div class="row">
+      <div class="field">
+        <label>عنوان IP الخاص بالخادم</label>
+        <input type="text" id="clientIp" placeholder="مثال: 192.168.1.10 أو 26.x.x.x أو 100.x.x.x">
+      </div>
+      <div class="field" style="max-width:110px">
+        <label>المنفذ</label>
+        <input type="number" id="clientPort" value="5000">
+      </div>
+    </div>
+    <button class="ghost-btn" style="width:100%" onclick="testConn()">🔌 اختبار الاتصال</button>
+    <div class="status" id="testStatus"></div>
+    <div class="field" style="margin-top:14px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400">
+        <input type="checkbox" id="mirrorChk" style="width:auto">
+        🗄️ احتفظ بنسخة احتياطية محلية تلقائية من بيانات الخادم على هذا الجهاز
+      </label>
+      <p class="hint" style="margin-top:4px">تتيح لك لاحقاً ترقية هذا الجهاز ليعمل كخادم مؤقت من "النسخ الاحتياطي" إذا تعطّل الخادم الرئيسي.</p>
+    </div>
+    <p class="hint">
+      اطلب عنوان IP من الشخص المسؤول عن الجهاز «الخادم الرئيسي» (يظهر له في نفس هذه الشاشة).
+      إن كان الفرع في مكان مختلف، تأكد أن هذا الجهاز منضم لنفس شبكة <b>Radmin VPN</b> أو <b>Tailscale</b> المستخدمة على الخادم.
+    </p>
+  </div>
+
+  <div class="actions">
+    <button class="main-btn" id="saveBtn" onclick="save()" disabled>حفظ ومتابعة</button>
+    <button class="ghost-btn" onclick="cancelSetup()" id="cancelBtn" style="display:none">إلغاء</button>
+  </div>
+</div>
+
+<script>
+var mode = null;
+
+function selectMode(m){
+  mode = m;
+  document.getElementById('btnServer').classList.toggle('active', m==='server');
+  document.getElementById('btnClient').classList.toggle('active', m==='client');
+  document.getElementById('panelServer').classList.toggle('show', m==='server');
+  document.getElementById('panelClient').classList.toggle('show', m==='client');
+  document.getElementById('saveBtn').disabled = false;
+  if(m==='server') loadIps();
+}
+
+function showVpn(which, btn){
+  ['lan','radmin','tailscale'].forEach(function(k){
+    document.getElementById('vpn'+cap(k)).classList.toggle('show', k===which);
+  });
+  Array.prototype.forEach.call(btn.parentNode.children, function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+}
+function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+function loadIps(){
+  window.posNetwork.getLocalIps().then(function(list){
+    var el = document.getElementById('ipList');
+    if(!list || !list.length){ el.innerHTML = '<div class="hint">لم يتم العثور على عنوان شبكة متصل حالياً.</div>'; return; }
+    el.innerHTML = list.map(function(it){
+      var isVpn = it.label !== 'شبكة محلية (LAN)';
+      return '<div class="row-ip"><span class="addr">'+it.ip+'</span>'+
+             '<span class="badge'+(isVpn?' vpn':'')+'">'+it.label+'</span>'+
+             '<button class="copy-btn" onclick="copyIp(\''+it.ip+'\')">نسخ</button></div>';
+    }).join('');
+  });
+}
+function copyIp(ip){ navigator.clipboard && navigator.clipboard.writeText(ip); }
+
+function testConn(){
+  var ip = document.getElementById('clientIp').value.trim();
+  var port = parseInt(document.getElementById('clientPort').value,10) || 5000;
+  var st = document.getElementById('testStatus');
+  if(!ip){ st.className='status err'; st.textContent='أدخل عنوان IP أولاً.'; return; }
+  st.className='status pending'; st.textContent='جارٍ الاختبار…';
+  window.posNetwork.testConnection(ip, port).then(function(r){
+    if(r && r.ok){ st.className='status ok'; st.textContent='✔ تم الاتصال بالخادم بنجاح.'; }
+    else { st.className='status err'; st.textContent='✘ تعذّر الاتصال: '+(r && r.error ? r.error : 'تأكد من IP والشبكة'); }
+  });
+}
+
+function save(){
+  if(!mode) return;
+  var cfg = { mode: mode };
+  if(mode==='server'){
+    cfg.port = parseInt(document.getElementById('serverPort').value,10) || 5000;
+  } else {
+    cfg.ip = document.getElementById('clientIp').value.trim();
+    cfg.port = parseInt(document.getElementById('clientPort').value,10) || 5000;
+    cfg.mirror = document.getElementById('mirrorChk').checked;
+    if(!cfg.ip){ alert('أدخل عنوان IP الخاص بالخادم.'); return; }
+  }
+  document.getElementById('saveBtn').disabled = true;
+  document.getElementById('saveBtn').textContent = 'جارٍ التطبيق…';
+  window.posNetwork.saveConfig(cfg).then(function(res){
+    if(res && res.ok){ window.posNetwork.relaunch(); }
+    else {
+      document.getElementById('saveBtn').disabled = false;
+      document.getElementById('saveBtn').textContent = 'حفظ ومتابعة';
+      alert('حدث خطأ أثناء الحفظ: '+(res && res.error || ''));
+    }
+  });
+}
+
+function cancelSetup(){ window.close(); }
+
+// إن كانت هذه إعادة فتح للإعدادات (وليس أول تشغيل)، أظهر زر إلغاء واملأ القيم الحالية
+window.posNetwork.getConfig().then(function(cfg){
+  if(cfg && cfg.mode){
+    document.getElementById('cancelBtn').style.display = 'inline-block';
+    selectMode(cfg.mode);
+    if(cfg.mode==='server'){ document.getElementById('serverPort').value = cfg.port || 5000; }
+    else { document.getElementById('clientIp').value = cfg.ip || ''; document.getElementById('clientPort').value = cfg.port || 5000; document.getElementById('mirrorChk').checked = !!cfg.mirror; }
+  }
+});
+</script>
+</body>
+</html>

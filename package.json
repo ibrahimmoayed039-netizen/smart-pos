@@ -1,0 +1,50 @@
+{
+  "name": "smart-pos",
+  "version": "1.0.0",
+  "description": "نظام نقطة البيع - تطبيق سطح مكتب",
+  "main": "main.js",
+  "author": "Al Gulf POS",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^31.7.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.algulf.pos",
+    "productName": "نظام نقطة البيع",
+    "copyright": "Copyright © 2025 Al Gulf POS",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "server.js",
+      "setup.html",
+      "backups.html",
+      "POS_System.html",
+      "build/**"
+    ],
+    "extraResources": [
+      { "from": "rawprint.exe", "to": "rawprint.exe" }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "license": "license.txt",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "نظام نقطة البيع",
+      "installerLanguages": ["ar", "en"]
+    }
+  }
+}
