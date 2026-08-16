@@ -1,0 +1,57 @@
+name: بناء نسخة Windows
+
+# يعمل هذا الملف تلقائياً على خوادم GitHub (لا يحتاج جهاز ويندوز عندك):
+# - كل Push على main: يبني نسخة تجريبية ويرفقها كـ Artifact في تبويب Actions.
+# - عند إنشاء تاق إصدار مثل v1.0.0: يبني وينشئ Release رسمي مع ملف التثبيت جاهزاً للتحميل.
+# - يمكن تشغيله يدوياً في أي وقت من تبويب Actions ← Run workflow.
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # مطلوب فقط لإنشاء Release عند الدفع بتاق
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: تنزيل الكود
+        uses: actions/checkout@v4
+
+      - name: تجهيز Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: تثبيت الحزم
+        run: npm ci
+
+      - name: بناء ملف التثبيت (electron-builder)
+        run: npm run dist
+
+      - name: عرض محتوى مجلد dist (للتأكد)
+        run: dir dist
+        shell: cmd
+
+      - name: رفع ملف التثبيت كـ Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: POS-Setup-Windows
+          path: |
+            dist/*.exe
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: إنشاء Release رسمي (فقط عند دفع تاق مثل v1.0.0)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.exe
+          generate_release_notes: true

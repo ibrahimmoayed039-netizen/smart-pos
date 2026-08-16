@@ -1,0 +1,15 @@
+# تبعيات Node
+node_modules/
+
+# نواتج البناء (electron-builder)
+dist/
+
+# بيانات محلية وقت التطوير (لا تُرفع أبداً — قد تحوي بيانات حقيقية للمتجر)
+pos-data.json
+pos-network-config.json
+backups/
+
+# ملفات نظام
+.DS_Store
+Thumbs.db
+*.log
