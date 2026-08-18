@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win --publish=never"
+    "dist": "electron-builder --win"
   },
   "devDependencies": {
     "electron": "^31.7.0",

@@ -492,6 +492,8 @@ body{font-size:13px}
             <span style="display:flex;align-items:center;gap:8px">
               <span class="cart-badge" id="cart-badge">0</span>
               <span id="cart-units" style="font-size:11px;color:#cdd8e6"></span>
+              <button onclick="holdSale()" title="تعليق الفاتورة الحالية" style="background:transparent;border:none;color:#ffd27a;cursor:pointer;font-size:14px">⏸️</button>
+              <button onclick="resumeSale()" title="استئناف فاتورة معلّقة" style="background:transparent;border:none;color:#8fd3ff;cursor:pointer;font-size:14px;position:relative">▶️<span id="held-count" style="position:absolute;top:-8px;left:-10px;background:#e0752e;color:#fff;border-radius:10px;min-width:15px;height:15px;font-size:10px;line-height:15px;text-align:center;padding:0 2px;display:none"></span></button>
               <button onclick="clearCart()" title="تفريغ السلة" style="background:transparent;border:none;color:#ff9aa2;cursor:pointer;font-size:14px">🗑</button>
             </span>
           </div>
@@ -1075,6 +1077,23 @@ body{font-size:13px}
       <button class="mbtn mbtn-acc" onclick="saveProduct()">💾 حفظ المنتج</button>
     </div>
   </div>
+</div>
+
+<!-- ═══ المساعد الذكي (يجيب من بياناتك) ═══ -->
+<button onclick="toggleAssistant()" title="المساعد الذكي" style="position:fixed;bottom:20px;left:20px;z-index:9000;width:52px;height:52px;border-radius:50%;border:none;background:#1a56a0;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.3)">🤖</button>
+<div id="asst-box" style="display:none;position:fixed;bottom:82px;left:20px;z-index:9000;width:300px;max-width:calc(100vw - 40px);background:#fff;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.3);padding:16px;direction:rtl;font-family:inherit">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <b style="font-size:15px">🤖 المساعد الذكي</b>
+    <button onclick="toggleAssistant()" style="background:transparent;border:none;font-size:16px;cursor:pointer;color:#7a8a9e">✕</button>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+    <button onclick="askAssistant('sales')" class="btn btn-ghost btn-sm">💰 مبيعات اليوم</button>
+    <button onclick="askAssistant('profit')" class="btn btn-ghost btn-sm">📈 ربح اليوم</button>
+    <button onclick="askAssistant('top')" class="btn btn-ghost btn-sm">🏆 الأكثر مبيعاً</button>
+    <button onclick="askAssistant('low')" class="btn btn-ghost btn-sm">⚠ مخزون منخفض</button>
+    <button onclick="askAssistant('count')" class="btn btn-ghost btn-sm">🔢 عدد المنتجات/الفواتير</button>
+  </div>
+  <div id="asst-ans" style="font-size:13.5px;line-height:1.9;color:#33414f;min-height:20px"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -3479,7 +3498,9 @@ function _importBackupDo(file){
 
 // ═══ تعليق البيع واستئنافه ═══
 function updateHeldCount(){
-  var el=document.getElementById('held-count'); if(el) el.textContent=HELD.length;
+  var el=document.getElementById('held-count'); if(!el) return;
+  el.textContent=HELD.length;
+  el.style.display = HELD.length ? 'block' : 'none';
 }
 function holdSale(){
   if(!cart.length){ showToast('السلة فارغة!','err'); return; }
