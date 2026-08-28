@@ -15,6 +15,7 @@
   },
   "build": {
     "appId": "com.algulf.pos",
+    "publish": null,
     "productName": "نظام نقطة البيع",
     "copyright": "Copyright © 2025 Al Gulf POS",
     "directories": {
