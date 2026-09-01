@@ -292,6 +292,7 @@ function createWindow(loadUrlOrFile) {
     height: 800,
     minWidth: 1000,                                // أقل عرض يحافظ على شكل الواجهة (شريط جانبي + منتجات + سلة)
     minHeight: 650,
+    frame: false,                                   // بنشيل إطار النظام الافتراضي ونرسم شريط عنوان خاص بالبرنامج
     show: false,                                   // لا تُظهرها حتى تجهز (يمنع الوميض الأبيض)
     autoHideMenuBar: true,                          // إخفاء شريط القوائم (يظهر بالضغط على Alt)
     icon: path.join(__dirname, 'build', 'icon.ico'),
@@ -321,6 +322,7 @@ function createWindow(loadUrlOrFile) {
   });
 
   mainWindow.on('closed', () => { mainWindow = null; });
+  wireMaximizeEvents(mainWindow);
 }
 
 /* ─── يبدأ التطبيق حسب الإعداد المحفوظ: خادم رئيسي / عميل / (بلا إعداد بعد) ─── */
@@ -346,6 +348,33 @@ function launchAccordingToConfig() {
     createWindow('http://' + cfg.ip + ':' + (cfg.port || DEFAULT_PORT) + '/');
     startMirror(cfg);
   }
+}
+
+/* ─── IPC: أزرار شريط العنوان المخصص (تصغير/تكبير/إغلاق) ─── */
+ipcMain.handle('pos-win-minimize', async (evt) => {
+  const w = BrowserWindow.fromWebContents(evt.sender);
+  if (w) w.minimize();
+});
+ipcMain.handle('pos-win-toggle-maximize', async (evt) => {
+  const w = BrowserWindow.fromWebContents(evt.sender);
+  if (!w) return false;
+  if (w.isMaximized()) w.unmaximize(); else w.maximize();
+  return w.isMaximized();
+});
+ipcMain.handle('pos-win-close', async (evt) => {
+  const w = BrowserWindow.fromWebContents(evt.sender);
+  if (w) w.close();
+});
+ipcMain.handle('pos-win-is-maximized', async (evt) => {
+  const w = BrowserWindow.fromWebContents(evt.sender);
+  return w ? w.isMaximized() : false;
+});
+
+/* ـ نبلّغ الواجهة كل ما تتغير حالة التكبير، عشان أيقونة زر التكبير تتحدّث لوحدها ـ */
+function wireMaximizeEvents(win) {
+  if (!win) return;
+  win.on('maximize', () => win.webContents.send('pos-win-maximized-changed', true));
+  win.on('unmaximize', () => win.webContents.send('pos-win-maximized-changed', false));
 }
 
 /* ─── IPC: إعدادات الشبكة (تُستخدم من setup.html) ─── */

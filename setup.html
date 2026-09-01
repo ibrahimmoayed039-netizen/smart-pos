@@ -4,7 +4,9 @@
 <meta charset="utf-8">
 <title>إعداد الاتصال بالشبكة</title>
 <style>
-  :root{ --primary:#1a56a0; --accent:#0d9e52; --bg:#eef1f6; --text:#1c2733; --danger:#c0392b; }
+@font-face{font-family:'Tajawal';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/tajawal/Tajawal-Regular.ttf') format('truetype')}
+@font-face{font-family:'Tajawal';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/tajawal/Tajawal-Bold.ttf') format('truetype')}
+  :root{ --primary:#0f6b5c; --accent:#2fa372; --bg:#eef6f5; --text:#1c332d; --danger:#b23a3a; }
   *{ box-sizing:border-box; }
   body{
     margin:0; background:var(--bg); color:var(--text); font-size:14px;
@@ -16,69 +18,69 @@
     width:100%; max-width:560px; padding:28px 30px; position:relative;
   }
   h1{ font-size:19px; margin:0 0 4px; color:var(--primary); }
-  .sub{ color:#66758c; margin:0 0 22px; font-size:13px; }
+  .sub{ color:#668c85; margin:0 0 22px; font-size:13px; }
   .modes{ display:flex; gap:12px; margin-bottom:20px; }
   .mode-btn{
-    flex:1; border:2px solid #dde4ee; background:#fbfcfe; border-radius:10px; padding:16px 10px;
+    flex:1; border:2px solid #ddeeea; background:#fbfefe; border-radius:10px; padding:16px 10px;
     cursor:pointer; text-align:center; transition:.15s; font-family:inherit;
   }
-  .mode-btn:hover{ border-color:#a9c3e6; }
-  .mode-btn.active{ border-color:var(--primary); background:#eaf1fb; }
+  .mode-btn:hover{ border-color:#a9e6d8; }
+  .mode-btn.active{ border-color:var(--primary); background:#eafbf7; }
   .mode-btn .ic{ font-size:26px; display:block; margin-bottom:6px; }
   .mode-btn b{ display:block; font-size:14px; margin-bottom:3px; }
-  .mode-btn span{ font-size:12px; color:#66758c; }
+  .mode-btn span{ font-size:12px; color:#668c85; }
 
   .panel{ display:none; }
   .panel.show{ display:block; animation:fade .15s ease; }
   @keyframes fade{ from{opacity:0} to{opacity:1} }
 
   .field{ margin-bottom:14px; }
-  .field label{ display:block; font-size:12.5px; color:#4b5b70; margin-bottom:5px; font-weight:700; }
+  .field label{ display:block; font-size:12.5px; color:#4b7067; margin-bottom:5px; font-weight:700; }
   .row{ display:flex; gap:10px; }
   .row .field{ flex:1; }
   input[type=text],input[type=number]{
-    width:100%; padding:10px 12px; border:1.5px solid #dbe2ec; border-radius:8px;
+    width:100%; padding:10px 12px; border:1.5px solid #dbece8; border-radius:8px;
     font-family:inherit; font-size:14px; text-align:left; direction:ltr;
   }
   input:focus{ outline:none; border-color:var(--primary); }
 
-  .iplist{ background:#f6f8fb; border:1px solid #e3e8f0; border-radius:10px; padding:12px 14px; margin-top:6px; }
-  .iplist .row-ip{ display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px dashed #e3e8f0; }
+  .iplist{ background:#f6fbfa; border:1px solid #e3f0ee; border-radius:10px; padding:12px 14px; margin-top:6px; }
+  .iplist .row-ip{ display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px dashed #e3f0ee; }
   .iplist .row-ip:last-child{ border-bottom:none; }
   .iplist .addr{ direction:ltr; font-family:Consolas,monospace; font-size:13.5px; color:var(--primary); font-weight:700; }
   .badge{ font-size:11px; padding:2px 8px; border-radius:20px; background:#e6efe0; color:var(--accent); font-weight:700; }
-  .badge.vpn{ background:#e8effb; color:var(--primary); }
-  .copy-btn{ border:none; background:#eef1f6; border-radius:6px; padding:3px 9px; font-size:11px; cursor:pointer; color:#4b5b70; }
-  .copy-btn:hover{ background:#e2e7ee; }
+  .badge.vpn{ background:#e8fbf8; color:var(--primary); }
+  .copy-btn{ border:none; background:#eef6f5; border-radius:6px; padding:3px 9px; font-size:11px; cursor:pointer; color:#4b7067; }
+  .copy-btn:hover{ background:#e2eeeb; }
 
-  .hint{ font-size:12px; color:#7a8aa0; margin-top:8px; line-height:1.9; }
+  .hint{ font-size:12px; color:#7aa098; margin-top:8px; line-height:1.9; }
   .hint a{ color:var(--primary); }
 
   .status{ font-size:13px; margin-top:10px; padding:8px 12px; border-radius:8px; display:none; }
   .status.ok{ display:block; background:#e6f7ec; color:#0d7a3c; }
   .status.err{ display:block; background:#fbe9e7; color:var(--danger); }
-  .status.pending{ display:block; background:#eef3fb; color:var(--primary); }
+  .status.pending{ display:block; background:#eefbf9; color:var(--primary); }
 
   .actions{ display:flex; gap:10px; margin-top:22px; }
   button.main-btn{
     flex:1; background:var(--primary); color:#fff; border:none; border-radius:9px;
     padding:12px; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit;
   }
-  button.main-btn:hover{ background:#164680; }
+  button.main-btn:hover{ background:#0d5c4d; }
   button.main-btn:disabled{ opacity:.55; cursor:not-allowed; }
   button.ghost-btn{
-    background:#fff; color:#4b5b70; border:1.5px solid #dbe2ec; border-radius:9px;
+    background:#fff; color:#4b7067; border:1.5px solid #dbece8; border-radius:9px;
     padding:12px 16px; font-size:13.5px; cursor:pointer; font-family:inherit;
   }
-  button.ghost-btn:hover{ background:#f6f8fb; }
+  button.ghost-btn:hover{ background:#f6fbfa; }
 
   .tabs-vpn{ display:flex; gap:8px; margin:14px 0 6px; }
   .tabs-vpn button{
-    flex:1; border:1px solid #dbe2ec; background:#fff; border-radius:7px; padding:6px; font-size:12px;
-    cursor:pointer; font-family:inherit; color:#4b5b70;
+    flex:1; border:1px solid #dbece8; background:#fff; border-radius:7px; padding:6px; font-size:12px;
+    cursor:pointer; font-family:inherit; color:#4b7067;
   }
   .tabs-vpn button.on{ background:var(--primary); color:#fff; border-color:var(--primary); }
-  .vpn-box{ display:none; background:#f6f8fb; border:1px solid #e3e8f0; border-radius:9px; padding:12px 14px; font-size:12.5px; line-height:2; color:#3d4a5e; }
+  .vpn-box{ display:none; background:#f6fbfa; border:1px solid #e3f0ee; border-radius:9px; padding:12px 14px; font-size:12.5px; line-height:2; color:#3d5e58; }
   .vpn-box.show{ display:block; }
   .vpn-box b{ color:var(--text); }
 </style>

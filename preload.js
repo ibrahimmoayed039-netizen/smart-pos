@@ -31,6 +31,20 @@ contextBridge.exposeInMainWorld('posNetwork', {
 });
 
 /*
+  جسر شريط العنوان المخصص — تصغير/تكبير-استعادة/إغلاق النافذة،
+  وإشعار الواجهة عند تغيّر حالة التكبير (مثلاً بالسحب لأعلى الشاشة).
+*/
+contextBridge.exposeInMainWorld('posWindow', {
+  minimize: function () { return ipcRenderer.invoke('pos-win-minimize'); },
+  toggleMaximize: function () { return ipcRenderer.invoke('pos-win-toggle-maximize'); },
+  close: function () { return ipcRenderer.invoke('pos-win-close'); },
+  isMaximized: function () { return ipcRenderer.invoke('pos-win-is-maximized'); },
+  onMaximizedChange: function (cb) {
+    ipcRenderer.on('pos-win-maximized-changed', function (evt, isMax) { cb(isMax); });
+  }
+});
+
+/*
   جسر النسخ الاحتياطي — تستخدمه نافذة backups.html لعرض/تصدير/استعادة/ترقية النسخ.
 */
 contextBridge.exposeInMainWorld('posBackup', {
