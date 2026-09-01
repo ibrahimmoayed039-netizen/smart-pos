@@ -290,6 +290,8 @@ function createWindow(loadUrlOrFile) {
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
+    minWidth: 1000,                                // أقل عرض يحافظ على شكل الواجهة (شريط جانبي + منتجات + سلة)
+    minHeight: 650,
     show: false,                                   // لا تُظهرها حتى تجهز (يمنع الوميض الأبيض)
     autoHideMenuBar: true,                          // إخفاء شريط القوائم (يظهر بالضغط على Alt)
     icon: path.join(__dirname, 'build', 'icon.ico'),
