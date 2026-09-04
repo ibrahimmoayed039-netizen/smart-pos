@@ -369,11 +369,11 @@ tbody td{padding:4px 6px;font-size:12px}
 .mbtn-acc{background:var(--accent);color:#fff}
 
 .invoice-modal{width:420px}
-.receipt{font-family:'Courier New',monospace;font-size:12px;line-height:1.65;background:#fff;border:1px solid #e0e0e0;border-radius:4px;padding:18px 16px;max-height:400px;overflow-y:auto;direction:rtl}
+.receipt{font-family:'Courier New',monospace;font-size:14px;line-height:1.65;background:#fff;border:1px solid #e0e0e0;border-radius:4px;padding:18px 16px;max-height:400px;overflow-y:auto;direction:rtl}
 .rc{text-align:center}.rb{font-weight:700}
 .rl{border-top:1px dashed #aaa;margin:6px 0}
-.rr{display:flex;justify-content:space-between;font-size:11px}
-.rtot{display:flex;justify-content:space-between;font-weight:700;font-size:13px;background:#f5f5f5;padding:3px 0}
+.rr{display:flex;justify-content:space-between;gap:6px}
+.rtot{display:flex;justify-content:space-between;font-weight:700;font-size:1.2em;background:#f5f5f5;padding:4px 0}
 
 .prodform-modal{width:520px}
 .pf-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:12px}
@@ -932,8 +932,8 @@ body{font-size:13px}
           <div>
             <label style="display:block;margin-bottom:5px;font-weight:700;font-size:13px">حجم الخط</label>
             <select id="set-font" style="width:100%;padding:8px;border:1px solid #e3ded2;border-radius:7px">
-              <option value="11">صغير</option><option value="12">متوسط</option>
-              <option value="14">كبير</option><option value="16">كبير جداً</option>
+              <option value="12">صغير</option><option value="14">متوسط</option>
+              <option value="16">كبير</option><option value="18">كبير جداً</option><option value="20">ضخم</option>
             </select>
           </div>
           <div>
@@ -2938,37 +2938,37 @@ function buildReceipt(){
   cart.forEach(function(c){
     var lt=+(c.qty*c.price-c.disc).toFixed(2);
     var nm=c.name.length>18?c.name.substring(0,17)+'…':c.name;
-    rows+='<div style="margin:4px 0">'+
-      '<div class="rr"><span class="rb">'+nm+'</span><span class="rb">'+lt.toFixed(2)+'</span></div>'+
-      '<div style="font-size:9px;color:#222">'+c.unit+' &nbsp;•&nbsp; '+(+c.qty.toFixed(3))+' × '+c.price.toFixed(2)+'</div>'+
+    rows+='<div style="margin:5px 0">'+
+      '<div class="rr" style="font-size:1.1em"><span class="rb">'+nm+'</span><span class="rb">'+lt.toFixed(2)+'</span></div>'+
+      '<div style="font-size:0.92em;color:#222">'+c.unit+' &nbsp;•&nbsp; '+(+c.qty.toFixed(3))+' × '+c.price.toFixed(2)+'</div>'+
       '</div>';
   });
   var stName = localStorage.getItem('pos_store_name')  || 'ماركت الخليج';
   var stAddr = localStorage.getItem('pos_store_addr')  || '';
   var stPhone= localStorage.getItem('pos_store_phone') || '';
   var h=_logoHTML()+
-    '<div class="rh rb" style="font-size:17px;letter-spacing:.5px">'+stName+'</div>'+
-    (stAddr?'<div class="rh" style="font-size:10px">'+stAddr+'</div>':'')+
-    (stPhone?'<div class="rh" style="font-size:10px">☎ '+stPhone+'</div>':'')+
-    '<div style="border-top:2px solid #000;margin:6px 0"></div>'+
-    '<div class="rh" style="margin-bottom:4px"><span style="font-weight:700;border:1px solid #000;border-radius:5px;padding:2px 10px;font-size:12px">فاتورة #'+no+'</span></div>'+
-    '<div class="rr" style="font-size:10px"><span>'+d.toLocaleString('ar-SA')+'</span><span>'+(payM==='Credit'?'آجل':payM==='Card'?'بطاقة':'نقداً')+'</span></div>'+
-    '<div style="border-top:1px dashed #000;margin:5px 0"></div>'+
-    '<div class="rr rb" style="font-size:10px;border-bottom:1px solid #000;padding-bottom:3px"><span>الصنف</span><span>الإجمالي</span></div>'+
-    rows+
-    '<div style="border-top:2px solid #000;margin:6px 0"></div>'+
-    '<div class="rr"><span>المجموع</span><span>'+sub.toFixed(2)+C+'</span></div>'+
-    (disc>0?'<div class="rr" style="color:#000"><span>الخصم</span><span>-'+disc.toFixed(2)+C+'</span></div>':'')+
-    (TAX>0?'<div class="rr"><span>الضريبة ('+Math.round(TAX*100)+'%)</span><span>'+tax.toFixed(2)+C+'</span></div>':'')+
-    '<div class="rtot" style="font-size:15px"><span>الإجمالي</span><span>'+total.toFixed(2)+C+'</span></div>'+
-    '<div class="rr"><span>المدفوع</span><span>'+paid.toFixed(2)+C+'</span></div>'+
-    (chg>=0
-      ? '<div class="rr rb" style="font-size:13px;border:1px dashed #000;border-radius:5px;padding:3px 6px;margin-top:4px"><span>الباقي</span><span>'+chg.toFixed(2)+C+'</span></div>'
-      : '<div class="rr rb"><span>المتبقّي على الزبون</span><span>'+(-chg).toFixed(2)+C+'</span></div>')+
-    ((document.getElementById('inv-note')&&document.getElementById('inv-note').value.trim())?'<div style="border-top:1px dashed #000;margin:5px 0"></div><div class="rh" style="font-size:11px">📝 '+document.getElementById('inv-note').value.trim()+'</div>':'')+
+    '<div class="rh rb" style="font-size:1.55em;letter-spacing:.5px">'+stName+'</div>'+
+    (stAddr?'<div class="rh" style="font-size:0.92em">'+stAddr+'</div>':'')+
+    (stPhone?'<div class="rh" style="font-size:0.92em">☎ '+stPhone+'</div>':'')+
+    '<div style="border-top:2px solid #000;margin:7px 0"></div>'+
+    '<div class="rh" style="margin-bottom:5px"><span style="font-weight:700;border:1px solid #000;border-radius:5px;padding:3px 12px;font-size:1.1em">فاتورة #'+no+'</span></div>'+
+    '<div class="rr" style="font-size:0.95em"><span>'+d.toLocaleString('ar-SA')+'</span><span>'+(payM==='Credit'?'آجل':payM==='Card'?'بطاقة':'نقداً')+'</span></div>'+
     '<div style="border-top:1px dashed #000;margin:6px 0"></div>'+
-    '<div class="rh rb" style="margin-top:2px;font-size:12px">'+(localStorage.getItem('pos_footer')||'شكراً لزيارتكم')+'</div>'+
-    '<div style="text-align:center;margin-top:8px">'+code128SVG(no)+'<div style="font-size:8px;font-family:monospace;letter-spacing:1px">'+no+'</div></div>';
+    '<div class="rr rb" style="font-size:1em;border-bottom:1px solid #000;padding-bottom:4px"><span>الصنف</span><span>الإجمالي</span></div>'+
+    rows+
+    '<div style="border-top:2px solid #000;margin:7px 0"></div>'+
+    '<div class="rr" style="font-size:1.05em"><span>المجموع</span><span>'+sub.toFixed(2)+C+'</span></div>'+
+    (disc>0?'<div class="rr" style="color:#000;font-size:1.05em"><span>الخصم</span><span>-'+disc.toFixed(2)+C+'</span></div>':'')+
+    (TAX>0?'<div class="rr" style="font-size:1.05em"><span>الضريبة ('+Math.round(TAX*100)+'%)</span><span>'+tax.toFixed(2)+C+'</span></div>':'')+
+    '<div class="rtot" style="font-size:1.35em"><span>الإجمالي</span><span>'+total.toFixed(2)+C+'</span></div>'+
+    '<div class="rr" style="font-size:1.05em"><span>المدفوع</span><span>'+paid.toFixed(2)+C+'</span></div>'+
+    (chg>=0
+      ? '<div class="rr rb" style="font-size:1.2em;border:1px dashed #000;border-radius:5px;padding:4px 7px;margin-top:5px"><span>الباقي</span><span>'+chg.toFixed(2)+C+'</span></div>'
+      : '<div class="rr rb" style="font-size:1.2em"><span>المتبقّي على الزبون</span><span>'+(-chg).toFixed(2)+C+'</span></div>')+
+    ((document.getElementById('inv-note')&&document.getElementById('inv-note').value.trim())?'<div style="border-top:1px dashed #000;margin:6px 0"></div><div class="rh" style="font-size:1em">📝 '+document.getElementById('inv-note').value.trim()+'</div>':'')+
+    '<div style="border-top:1px dashed #000;margin:7px 0"></div>'+
+    '<div class="rh rb" style="margin-top:3px;font-size:1.1em">'+(localStorage.getItem('pos_footer')||'شكراً لزيارتكم')+'</div>'+
+    '<div style="text-align:center;margin-top:9px">'+code128SVG(no)+'<div style="font-size:0.8em;font-family:monospace;letter-spacing:1px">'+no+'</div></div>';
   document.getElementById('receipt-html').innerHTML=h;
 }
 
@@ -3061,7 +3061,7 @@ window.__fallbackPrint=function(){ if(_lastPrintHTML) _iframePrint(_lastPrintHTM
 // طباعة الفاتورة بعرض الطابعة الحرارية (افتراضي 80mm، يمكن جعله 58)
 function printReceipt(payMethod){
   var w = localStorage.getItem('pos_receipt_width') || '80';   // mm
-  var fs = localStorage.getItem('pos_font_size') || '12';
+  var fs = localStorage.getItem('pos_font_size') || '14';
   var lh = localStorage.getItem('pos_line') || '1.6';
   var al = localStorage.getItem('pos_align') || 'center';
   var pad = localStorage.getItem('pos_pad') || '4';            // هامش يمين/يسار (مم)
@@ -3072,7 +3072,7 @@ function printReceipt(payMethod){
     '.rc{text-align:center}.rh{text-align:'+al+'}.rb{font-weight:700}'+
     '.rl{border-top:1px dashed #000;margin:5px 0;height:0}'+
     '.rr{display:flex;justify-content:space-between;gap:6px}'+
-    '.rtot{display:flex;justify-content:space-between;font-weight:700;font-size:calc('+fs+'px + 2px);border-top:1px solid #000;border-bottom:1px solid #000;padding:3px 0;margin:3px 0}'+
+    '.rtot{display:flex;justify-content:space-between;font-weight:700;font-size:calc('+fs+'px + 4px);border-top:1px solid #000;border-bottom:1px solid #000;padding:4px 0;margin:4px 0}'+
     '</style></head><body>'+content+'</body></html>';
   printHTML(html, undefined, { openDrawer: (payMethod==='Cash') });
 }
@@ -3177,7 +3177,7 @@ function loadSettingsForm(){
   showLogoPreview();
   renderUsersTable();
   document.getElementById('set-width').value = localStorage.getItem('pos_receipt_width') || '80';
-  document.getElementById('set-font').value = localStorage.getItem('pos_font_size') || '12';
+  document.getElementById('set-font').value = localStorage.getItem('pos_font_size') || '14';
   document.getElementById('set-align').value = localStorage.getItem('pos_align') || 'center';
   document.getElementById('set-line').value = localStorage.getItem('pos_line') || '1.6';
   document.getElementById('set-logo-size').value = localStorage.getItem('pos_logo_size') || '85';
@@ -4169,30 +4169,30 @@ function printInvoice(no){
   var stAddr=localStorage.getItem('pos_store_addr')||'';
   var stPhone=localStorage.getItem('pos_store_phone')||'';
   var w=localStorage.getItem('pos_receipt_width')||'80';
-  var fs=localStorage.getItem('pos_font_size')||'12';
+  var fs=localStorage.getItem('pos_font_size')||'14';
   var lh=localStorage.getItem('pos_line')||'1.6';
   var al=localStorage.getItem('pos_align')||'center';
   var pad=localStorage.getItem('pos_pad')||'4';
-  var h=_logoHTML()+'<div class="rh rb" style="font-size:14px">'+stName+'</div>'+
-    (stAddr?'<div class="rh" style="font-size:10px">'+stAddr+'</div>':'')+
-    (stPhone?'<div class="rh" style="font-size:10px">☎ '+stPhone+'</div>':'')+
+  var h=_logoHTML()+'<div class="rh rb" style="font-size:1.2em">'+stName+'</div>'+
+    (stAddr?'<div class="rh" style="font-size:0.92em">'+stAddr+'</div>':'')+
+    (stPhone?'<div class="rh" style="font-size:0.92em">☎ '+stPhone+'</div>':'')+
     '<div class="rl"></div>'+
     '<div class="rr"><span>رقم:</span><span>'+v.no+'</span></div>'+
     '<div class="rr"><span>التاريخ:</span><span>'+v.date+'</span></div><div class="rl"></div>';
   v.lines.forEach(function(c){
     var lt=(c.qty*c.price-c.disc).toFixed(2);
-    h+='<div class="rr"><span>'+c.name+' ('+c.unit+') ×'+c.qty+'</span><span>'+lt+'</span></div>';
+    h+='<div class="rr" style="font-size:1.05em"><span>'+c.name+' ('+c.unit+') ×'+c.qty+'</span><span>'+lt+'</span></div>';
   });
   h+='<div class="rtot"><span>الإجمالي</span><span>'+v.total.toFixed(2)+(' '+CUR)+'</span></div>'+
-    '<div class="rr"><span>المدفوع</span><span>'+v.paid.toFixed(2)+'</span></div>'+
-    (v.note?'<div class="rl"></div><div class="rh" style="font-size:10px">📝 '+v.note+'</div>':'')+
-    '<div class="rl"></div><div class="rh" style="font-size:10px">'+(localStorage.getItem('pos_footer')||'شكراً لزيارتكم')+'</div>'+
-    '<div style="text-align:center;margin-top:8px">'+code128SVG(v.no)+'<div style="font-size:8px;font-family:monospace;letter-spacing:1px">'+v.no+'</div></div>';
+    '<div class="rr" style="font-size:1.05em"><span>المدفوع</span><span>'+v.paid.toFixed(2)+'</span></div>'+
+    (v.note?'<div class="rl"></div><div class="rh" style="font-size:1em">📝 '+v.note+'</div>':'')+
+    '<div class="rl"></div><div class="rh" style="font-size:1.1em">'+(localStorage.getItem('pos_footer')||'شكراً لزيارتكم')+'</div>'+
+    '<div style="text-align:center;margin-top:8px">'+code128SVG(v.no)+'<div style="font-size:0.8em;font-family:monospace;letter-spacing:1px">'+v.no+'</div></div>';
   var html='<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><style>'+
     '@page{size:'+w+'mm auto;margin:0}body{margin:0;padding:5px '+pad+'mm;box-sizing:border-box;font-family:"Courier New",monospace;font-size:'+fs+'px;line-height:'+lh+';width:'+w+'mm;direction:rtl}'+
     '.rc{text-align:center}.rh{text-align:'+al+'}.rb{font-weight:700}.rl{border-top:1px dashed #000;margin:5px 0}'+
     '.rr{display:flex;justify-content:space-between;gap:6px}'+
-    '.rtot{display:flex;justify-content:space-between;font-weight:700;font-size:calc('+fs+'px + 2px);border-top:1px solid #000;border-bottom:1px solid #000;padding:3px 0;margin:3px 0}'+
+    '.rtot{display:flex;justify-content:space-between;font-weight:700;font-size:calc('+fs+'px + 4px);border-top:1px solid #000;border-bottom:1px solid #000;padding:4px 0;margin:4px 0}'+
     '</style></head><body>'+h+'</body></html>';
   printHTML(html);
 }
