@@ -317,7 +317,7 @@ function createWindow(loadUrlOrFile) {
   }
 
   mainWindow.once('ready-to-show', () => {
-    mainWindow.maximize();                          // فتح بملء الشاشة
+    mainWindow.setFullScreen(true);                 // ملء الشاشة الكامل (يخفي شريط مهام ويندوز)
     mainWindow.show();
   });
 
@@ -358,8 +358,8 @@ ipcMain.handle('pos-win-minimize', async (evt) => {
 ipcMain.handle('pos-win-toggle-maximize', async (evt) => {
   const w = BrowserWindow.fromWebContents(evt.sender);
   if (!w) return false;
-  if (w.isMaximized()) w.unmaximize(); else w.maximize();
-  return w.isMaximized();
+  w.setFullScreen(!w.isFullScreen());
+  return w.isFullScreen();
 });
 ipcMain.handle('pos-win-close', async (evt) => {
   const w = BrowserWindow.fromWebContents(evt.sender);
@@ -367,14 +367,14 @@ ipcMain.handle('pos-win-close', async (evt) => {
 });
 ipcMain.handle('pos-win-is-maximized', async (evt) => {
   const w = BrowserWindow.fromWebContents(evt.sender);
-  return w ? w.isMaximized() : false;
+  return w ? w.isFullScreen() : false;
 });
 
-/* ـ نبلّغ الواجهة كل ما تتغير حالة التكبير، عشان أيقونة زر التكبير تتحدّث لوحدها ـ */
+/* ـ نبلّغ الواجهة كل ما تتغير حالة ملء الشاشة، عشان أيقونة زر التكبير تتحدّث لوحدها ـ */
 function wireMaximizeEvents(win) {
   if (!win) return;
-  win.on('maximize', () => win.webContents.send('pos-win-maximized-changed', true));
-  win.on('unmaximize', () => win.webContents.send('pos-win-maximized-changed', false));
+  win.on('enter-full-screen', () => win.webContents.send('pos-win-maximized-changed', true));
+  win.on('leave-full-screen', () => win.webContents.send('pos-win-maximized-changed', false));
 }
 
 /* ─── IPC: إعدادات الشبكة (تُستخدم من setup.html) ─── */

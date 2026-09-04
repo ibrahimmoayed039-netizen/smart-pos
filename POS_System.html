@@ -35,7 +35,7 @@
 body{
   font-family:'Tajawal','Segoe UI','Tahoma',Arial,sans-serif;
   background:var(--bg);color:var(--text);font-size:14px;
-  height:calc(100vh - 34px);margin-top:34px;overflow:auto;display:flex;
+  height:calc(100vh - 34px);margin-top:34px;overflow:hidden;display:flex;
 }
 
 /* ════════ شريط العنوان المخصص (بديل إطار النظام الافتراضي) ════════ */
@@ -106,8 +106,7 @@ body{
   padding:6px 12px;border-radius:6px;font-size:12.5px;font-weight:700;
   box-shadow:0 3px 12px rgba(0,0,0,.28);z-index:50;pointer-events:none;
 }
-.sb-item:hover .sb-label,
-.sb-item.active .sb-label{display:block}
+.sb-item:hover .sb-label{display:block}
 .sb-sep{height:1px;background:rgba(255,255,255,.09);margin:5px 16px}
 
 /* ════════ MAIN AREA ════════ */
@@ -223,16 +222,17 @@ body{
   .sidebar{width:165px}
   .pos-cart{flex-basis:clamp(300px,32vw,360px)}
 }
-.card-img{width:100%;height:92px;overflow:hidden;flex-shrink:0}
-.card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.card-img{width:100%;height:92px;max-height:92px;min-height:92px;overflow:hidden;flex-shrink:0;position:relative}
+.card-img img{position:absolute;inset:0;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:cover;object-position:center;display:block}
 .card-top{padding:9px 11px 8px;display:flex;flex-direction:column}
 .card-cat{font-size:11px;font-weight:700;color:#fff;background:rgba(0,0,0,.18);border-radius:3px;padding:2px 7px;align-self:flex-start;margin-bottom:4px}
 .card-name{font-size:14px;font-weight:800;color:#fff;line-height:1.3;min-height:36px}
 .card-price{font-size:17px;font-weight:800;color:#fff;margin-top:3px}
 .card-stock{font-size:11px;color:rgba(255,255,255,.72)}
 .card-stock.low{color:#ffcdd2;font-weight:700}
-.card-units{display:flex;border-top:1px solid rgba(0,0,0,.08)}
-.ucard-btn{flex:1;padding:9px 3px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;transition:filter .15s}
+.card-units{display:flex;border-top:1px solid rgba(0,0,0,.08);width:100%;overflow:hidden}
+.ucard-btn{flex:1;min-width:0;padding:9px 3px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;transition:filter .15s;overflow:hidden}
+.ucard-btn span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ucard-btn:not(:last-child){border-left:1px solid rgba(0,0,0,.08)}
 .ucard-btn:hover{filter:brightness(1.2)}
 .ucard-btn:active{transform:scale(.94)}
@@ -457,24 +457,24 @@ body{font-size:13px}
     </div>
   </div>
   <div class="sb-menu">
-    <button class="sb-item active" data-page="dashboard" title="لوحة التحكم" onclick="goPage(this)"><span class="sb-icon">📊</span><span class="sb-label">لوحة التحكم</span></button>
-    <button class="sb-item" data-page="pos" title="نقطة البيع" onclick="goPage(this)"><span class="sb-icon">🛒</span><span class="sb-label">نقطة البيع</span></button>
+    <button class="sb-item active" data-page="dashboard" title="لوحة التحكم" onclick="goPage(this)"><span class="sb-icon">📊</span></button>
+    <button class="sb-item" data-page="pos" title="نقطة البيع" onclick="goPage(this)"><span class="sb-icon">🛒</span></button>
     <div class="sb-sep"></div>
-    <button class="sb-item" data-page="products" title="المنتجات" onclick="goPage(this)"><span class="sb-icon">📦</span><span class="sb-label">المنتجات</span></button>
-    <button class="sb-item" data-page="categories" title="التصنيفات" onclick="goPage(this)"><span class="sb-icon">🗂️</span><span class="sb-label">التصنيفات</span></button>
-    <button class="sb-item" data-page="invoices" title="الفواتير" onclick="goPage(this)"><span class="sb-icon">🧾</span><span class="sb-label">الفواتير</span></button>
-    <button class="sb-item" data-page="returns" title="المرتجعات" onclick="goPage(this)"><span class="sb-icon">↩️</span><span class="sb-label">المرتجعات</span></button>
+    <button class="sb-item" data-page="products" title="المنتجات" onclick="goPage(this)"><span class="sb-icon">📦</span></button>
+    <button class="sb-item" data-page="categories" title="التصنيفات" onclick="goPage(this)"><span class="sb-icon">🗂️</span></button>
+    <button class="sb-item" data-page="invoices" title="الفواتير" onclick="goPage(this)"><span class="sb-icon">🧾</span></button>
+    <button class="sb-item" data-page="returns" title="المرتجعات" onclick="goPage(this)"><span class="sb-icon">↩️</span></button>
     <div class="sb-sep"></div>
-    <button class="sb-item" data-page="cashbox" title="الصندوق" onclick="goPage(this)"><span class="sb-icon">💰</span><span class="sb-label">الصندوق</span></button>
+    <button class="sb-item" data-page="cashbox" title="الصندوق" onclick="goPage(this)"><span class="sb-icon">💰</span></button>
     <div class="sb-sep"></div>
-    <button class="sb-item" data-page="credit" title="بيع بالأجل" onclick="goPage(this)"><span class="sb-icon">📒</span><span class="sb-label">بيع بالأجل</span></button>
+    <button class="sb-item" data-page="credit" title="بيع بالأجل" onclick="goPage(this)"><span class="sb-icon">📒</span></button>
     <div class="sb-sep"></div>
-    <button class="sb-item" data-page="suppliers" title="الموردون" onclick="goPage(this)"><span class="sb-icon">🚚</span><span class="sb-label">الموردون</span></button>
-    <button class="sb-item" data-page="purchases" title="مشتريات الموردين" onclick="goPage(this)"><span class="sb-icon">📋</span><span class="sb-label">مشتريات الموردين</span></button>
-    <button class="sb-item" data-page="debts" title="ديون الموردين" onclick="goPage(this)"><span class="sb-icon">📝</span><span class="sb-label">ديون الموردين</span></button>
+    <button class="sb-item" data-page="suppliers" title="الموردون" onclick="goPage(this)"><span class="sb-icon">🚚</span></button>
+    <button class="sb-item" data-page="purchases" title="مشتريات الموردين" onclick="goPage(this)"><span class="sb-icon">📋</span></button>
+    <button class="sb-item" data-page="debts" title="ديون الموردين" onclick="goPage(this)"><span class="sb-icon">📝</span></button>
     <div class="sb-sep"></div>
-    <button class="sb-item" data-page="reports" title="التقارير" onclick="goPage(this)"><span class="sb-icon">📈</span><span class="sb-label">التقارير</span></button>
-    <button class="sb-item" data-page="settings" title="الإعدادات" onclick="goPage(this)"><span class="sb-icon">⚙️</span><span class="sb-label">الإعدادات</span></button>
+    <button class="sb-item" data-page="reports" title="التقارير" onclick="goPage(this)"><span class="sb-icon">📈</span></button>
+    <button class="sb-item" data-page="settings" title="الإعدادات" onclick="goPage(this)"><span class="sb-icon">⚙️</span></button>
     <div class="sb-sep"></div>
     <div id="sb-user" style="padding:10px 14px;color:#cde6e0;font-size:13px;display:none">
       <div style="margin-bottom:6px">👤 <b id="sb-user-name"></b></div>
@@ -1303,7 +1303,7 @@ function uploadProductImg(file){
   r.onload=function(){
     var img=new Image();
     img.onload=function(){
-      var maxW=200; var scale=Math.min(1, maxW/img.width);
+      var maxW=200, maxH=200; var scale=Math.min(1, maxW/img.width, maxH/img.height);
       var cw=Math.round(img.width*scale), ch=Math.round(img.height*scale);
       var cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
       cv.getContext('2d').drawImage(img,0,0,cw,ch);
@@ -4854,10 +4854,14 @@ var _uiZoom=parseFloat(localStorage.getItem('pos_ui_zoom2')||'1')||1;
 function applyZoom(){
   _uiZoom=Math.max(0.7, Math.min(1.6, _uiZoom));
   document.body.style.zoom=_uiZoom;
-  document.body.style.height=Math.round(window.innerHeight/_uiZoom)+'px';
+  if(_uiZoom===1){ document.body.style.height=''; }
+  else{ document.body.style.height=Math.round(window.innerHeight/_uiZoom)+'px'; }
   var v=document.getElementById('zoom-val'); if(v) v.textContent=Math.round(_uiZoom*100)+'%';
   var sf=document.getElementById('set-uifont'); if(sf) sf.value=String(_uiZoom);
   localStorage.setItem('pos_ui_zoom2', String(_uiZoom));
+  // إعادة رسم شبكة المنتجات إجباريًا حتى لا تبقى بطاقات متداخلة من حساب قديم قبل تغيير الحجم
+  var g=document.getElementById('prod-grid');
+  if(g){ g.style.display='none'; g.offsetHeight; g.style.display='grid'; if(typeof applyFilter==='function') applyFilter(); }
 }
 function setUIFont(v){ _uiZoom=parseFloat(v)||1; applyZoom(); }
 window.addEventListener('resize', function(){ if(window._zt) clearTimeout(window._zt); window._zt=setTimeout(applyZoom,120); });
