@@ -232,13 +232,13 @@ body{
 .card-stock{font-size:calc(11px * var(--fs-scale,1));color:rgba(255,255,255,.72)}
 .card-stock.low{color:#ffcdd2;font-weight:700}
 .card-units{display:flex;border-top:1px solid rgba(0,0,0,.08);width:100%;overflow:hidden}
-.ucard-btn{flex:1;min-width:0;padding:9px 3px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:calc(12px * var(--fs-scale,1));display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;transition:filter .15s;overflow:hidden}
+.ucard-btn{flex:1;min-width:0;padding:15px 4px;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:calc(12px * var(--fs-scale,1));display:flex;flex-direction:column;align-items:center;gap:4px;color:#fff;transition:filter .15s;overflow:hidden}
 .ucard-btn span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ucard-btn:not(:last-child){border-left:1px solid rgba(0,0,0,.08)}
 .ucard-btn:hover{filter:brightness(1.2)}
 .ucard-btn:active{transform:scale(.94)}
-.ub-l{font-size:calc(9px * var(--fs-scale,1));font-weight:700}
-.ub-p{font-size:calc(8px * var(--fs-scale,1));opacity:.85}
+.ub-l{font-size:calc(16px * var(--fs-scale,1));font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.ub-p{font-size:calc(13px * var(--fs-scale,1));font-weight:700;opacity:.95}
 
 .pos-cart{flex:0 0 clamp(340px, 26vw, 420px);display:flex;flex-direction:column;padding:8px 5px 8px 8px;gap:6px;min-height:0;overflow-y:auto}
 .cart-box{flex:1 1 auto;background:var(--surface);border-radius:var(--r);box-shadow:0 1px 4px rgba(28,42,39,.08);display:flex;flex-direction:column;overflow:hidden;min-height:60px}
@@ -1062,6 +1062,36 @@ body{font-size:calc(13px * var(--fs-scale,1))}
             <input id="set-label-h" type="number" min="10" step="1" style="width:100%;padding:8px;border:1px solid #e3ded2;border-radius:7px"></div>
         </div>
         <div style="font-size:12px;color:#7c7568;margin-top:8px">«رول حراري» لطابعة الملصقات (ملصق بكل صفحة)، و«A4» لورق الستيكر بشبكة. اختر الحجم المطابق لورقك.</div>
+        <hr style="border:none;border-top:1px solid #e3efec;margin:12px 0">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px">🎨 تنسيق الملصق</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label style="display:block;margin-bottom:5px;font-weight:700;font-size:13px">محاذاة المحتوى</label>
+            <select id="set-bc-align" style="width:100%;padding:8px;border:1px solid #e3ded2;border-radius:7px">
+              <option value="right">يمين</option>
+              <option value="center">وسط</option>
+              <option value="left">يسار</option>
+            </select></div>
+          <div><label style="display:block;margin-bottom:5px;font-weight:700;font-size:13px">تعميق النص (سماكة الخط)</label>
+            <select id="set-bc-weight" style="width:100%;padding:8px;border:1px solid #e3ded2;border-radius:7px">
+              <option value="400">عادي</option>
+              <option value="700">عريض</option>
+              <option value="900">عريض جداً (غامق)</option>
+            </select></div>
+          <div><label style="display:block;margin-bottom:5px;font-weight:700;font-size:13px">سماكة/عرض خطوط الباركود</label>
+            <select id="set-bc-barwidth" style="width:100%;padding:8px;border:1px solid #e3ded2;border-radius:7px">
+              <option value="75">نحيف</option>
+              <option value="90">عادي</option>
+              <option value="100">عريض (لطابعات حرارية رديئة)</option>
+            </select></div>
+          <div><label style="display:block;margin-bottom:5px;font-weight:700;font-size:13px">حجم خط الاسم/السعر</label>
+            <select id="set-bc-fontsize" style="width:100%;padding:8px;border:1px solid #e3ded2;border-radius:7px">
+              <option value="0.85">صغير</option>
+              <option value="1">عادي</option>
+              <option value="1.25">كبير</option>
+            </select></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer"><input id="set-bc-border" type="checkbox"> إظهار إطار حول الملصق (ورق A4)</label>
+        <div style="font-size:12px;color:#7c7568;margin-top:8px">استخدم «تعميق النص» و«سماكة الباركود» إذا كانت الملصقات تظهر باهتة أو يصعب مسحها ضوئياً على طابعات الملصقات الحرارية الرخيصة.</div>
       </div>
 
       <div style="background:#f7fcfb;border:1px solid #e3efec;border-radius:9px;padding:14px;margin-bottom:14px">
@@ -3206,7 +3236,7 @@ function printReceipt(payMethod){
 }
 
 // توليد باركود Code128 حقيقي (قابل للمسح) على هيئة SVG
-function code128SVG(data, hmm){
+function code128SVG(data, hmm, wpct){
   var PAT=["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];
   var START_B=104, STOP=106;
   var codes=[START_B], sum=START_B;
@@ -3223,7 +3253,7 @@ function code128SVG(data, hmm){
     if(black) rects+='<rect x="'+x+'" y="0" width="'+ww+'" height="'+h+'"/>';
     x+=ww; black=!black;
   }
-  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+x+'" height="'+h+'" viewBox="0 0 '+x+' '+h+'" preserveAspectRatio="none" style="width:90%;height:'+(hmm||14)+'mm">'+rects+'</svg>';
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="'+x+'" height="'+h+'" viewBox="0 0 '+x+' '+h+'" preserveAspectRatio="none" style="width:'+(wpct||90)+'%;height:'+(hmm||14)+'mm">'+rects+'</svg>';
 }
 
 // ═══ أحجام ملصقات الباركود ═══
@@ -3246,27 +3276,36 @@ function _labelInner(name,barcode,price,bh){
   var showStore=(localStorage.getItem('pos_bc_store')||'0')==='1';
   var showNum  =(localStorage.getItem('pos_bc_num')||'1')==='1';
   var store=localStorage.getItem('pos_store_name')||'';
+  var barW=parseFloat(localStorage.getItem('pos_bc_barwidth'))||90;
   return (showStore&&store?'<div class="st">'+store+'</div>':'')+
     (showName&&name?'<div class="nm">'+name+'</div>':'')+
-    code128SVG(barcode,bh)+
+    code128SVG(barcode,bh,barW)+
     (showNum?'<div class="bc">'+barcode+'</div>':'')+
     (showPrice&&(price!==''&&price!=null)?'<div class="pr">'+price+' '+CUR+'</div>':'');
 }
 function _labelsDoc(innerArr){
   var sz=_labelSize(); var mode=localStorage.getItem('pos_label_mode')||'sheet';
-  var common='.st{font-size:8px;font-weight:700;line-height:1.1}.nm{font-size:9px;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.bc{font-size:8px;font-family:monospace;letter-spacing:1px}.pr{font-size:12px;font-weight:700}';
+  var align=localStorage.getItem('pos_bc_align')||'center';
+  var weight=localStorage.getItem('pos_bc_weight')||'700';
+  var fscale=parseFloat(localStorage.getItem('pos_bc_fontsize'))||1;
+  var showBorder=(localStorage.getItem('pos_bc_border')||'1')==='1';
+  var alignItems = align==='right' ? 'flex-start' : (align==='left' ? 'flex-end' : 'center');
+  var common='.st{font-size:'+(8*fscale).toFixed(1)+'px;font-weight:'+weight+';line-height:1.1}'+
+    '.nm{font-size:'+(9*fscale).toFixed(1)+'px;font-weight:'+weight+';line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}'+
+    '.bc{font-size:'+(8*fscale).toFixed(1)+'px;font-weight:'+weight+';font-family:monospace;letter-spacing:1px}'+
+    '.pr{font-size:'+(12*fscale).toFixed(1)+'px;font-weight:'+weight+'}';
   if(mode==='roll'){
     var body=innerArr.map(function(inner){return '<div class="lbl">'+inner+'</div>';}).join('');
     return '<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><style>'+
       '@page{size:'+sz.w+'mm '+sz.h+'mm;margin:0}body{margin:0;font-family:Arial,Tahoma,sans-serif;color:#000}'+
-      '.lbl{width:'+sz.w+'mm;height:'+sz.h+'mm;box-sizing:border-box;padding:1mm;text-align:center;overflow:hidden;page-break-after:always;display:flex;flex-direction:column;justify-content:center;align-items:center}'+common+
+      '.lbl{width:'+sz.w+'mm;height:'+sz.h+'mm;box-sizing:border-box;padding:1mm;text-align:'+align+';overflow:hidden;page-break-after:always;display:flex;flex-direction:column;justify-content:center;align-items:'+alignItems+'}'+common+
       '</style></head><body>'+body+'</body></html>';
   }
   var grid=innerArr.map(function(inner){return '<div class="lbl">'+inner+'</div>';}).join('');
   return '<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><style>'+
     '@page{size:A4;margin:8mm}body{font-family:Arial,Tahoma,sans-serif;color:#000;margin:0}'+
     '.grid{display:flex;flex-wrap:wrap;gap:4mm}'+
-    '.lbl{width:'+sz.w+'mm;min-height:'+sz.h+'mm;border:1px dashed #bbb;border-radius:4px;padding:4px;text-align:center;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;align-items:center}'+common+
+    '.lbl{width:'+sz.w+'mm;min-height:'+sz.h+'mm;'+(showBorder?'border:1px dashed #bbb;':'border:1px solid transparent;')+'border-radius:4px;padding:4px;text-align:'+align+';box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;align-items:'+alignItems+'}'+common+
     '</style></head><body><div class="grid">'+grid+'</div></body></html>';
 }
 
@@ -3326,6 +3365,11 @@ function loadSettingsForm(){
   document.getElementById('set-label-h').value=_lh;
   document.getElementById('set-label-mode').value=localStorage.getItem('pos_label_mode')||'sheet';
   var _ls=document.getElementById('set-label-size'); _ls.value=_lw+'x'+_lh; if(_ls.value!==_lw+'x'+_lh) _ls.value='custom';
+  document.getElementById('set-bc-align').value = localStorage.getItem('pos_bc_align') || 'center';
+  document.getElementById('set-bc-weight').value = localStorage.getItem('pos_bc_weight') || '700';
+  document.getElementById('set-bc-barwidth').value = localStorage.getItem('pos_bc_barwidth') || '90';
+  document.getElementById('set-bc-fontsize').value = localStorage.getItem('pos_bc_fontsize') || '1';
+  document.getElementById('set-bc-border').checked = (localStorage.getItem('pos_bc_border')||'1')==='1';
   document.getElementById('set-tax').value = (TAX*100)||0;
   document.getElementById('set-cur').value = CUR;
   document.getElementById('set-footer').value = localStorage.getItem('pos_footer')||'شكراً لزيارتكم';
@@ -3374,6 +3418,11 @@ function saveSettings(){
   localStorage.setItem('pos_label_w', document.getElementById('set-label-w').value||'40');
   localStorage.setItem('pos_label_h', document.getElementById('set-label-h').value||'30');
   localStorage.setItem('pos_label_mode', document.getElementById('set-label-mode').value);
+  localStorage.setItem('pos_bc_align', document.getElementById('set-bc-align').value);
+  localStorage.setItem('pos_bc_weight', document.getElementById('set-bc-weight').value);
+  localStorage.setItem('pos_bc_barwidth', document.getElementById('set-bc-barwidth').value);
+  localStorage.setItem('pos_bc_fontsize', document.getElementById('set-bc-fontsize').value);
+  localStorage.setItem('pos_bc_border', document.getElementById('set-bc-border').checked?'1':'0');
   localStorage.setItem('pos_printer_main', document.getElementById('set-printer-main').value);
   localStorage.setItem('pos_printer_bc', document.getElementById('set-printer-bc').value);
   TAX=(parseFloat(document.getElementById('set-tax').value)||0)/100;
