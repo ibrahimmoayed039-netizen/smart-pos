@@ -8,8 +8,8 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('posNative', {
   isElectron: true,
   listPrinters: function () { return ipcRenderer.invoke('pos-list-printers'); },
-  silentPrint: function (printerName, html) {
-    return ipcRenderer.invoke('pos-silent-print', { printerName: printerName, html: html });
+  silentPrint: function (printerName, html, opts) {
+    return ipcRenderer.invoke('pos-silent-print', { printerName: printerName, html: html, pageSize: (opts && opts.pageSize) || undefined });
   },
   escposPrint: function (args) { return ipcRenderer.invoke('pos-escpos-print', args); },
   escposDrawer: function (args) { return ipcRenderer.invoke('pos-escpos-drawer', args); },

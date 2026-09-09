@@ -932,6 +932,49 @@ body{font-size:calc(13px * var(--fs-scale,1))}
           <div id="escpos-status" style="font-size:12px;color:#7c7568;margin-top:8px"></div>
         </div>
       </div>
+
+      <div style="background:#f7fcfb;border:1px solid #e3efec;border-radius:9px;padding:14px;margin-bottom:14px">
+        <label class="chk" style="display:flex;align-items:center;gap:8px;font-weight:800;color:#0f6b5c;margin-bottom:4px">
+          <input type="checkbox" id="set-escposbc-enable" onchange="toggleEscposBcUI()"> 🏷️ طباعة الباركود عبر ESC/POS الخام (طابعة ملصقات منفصلة)
+        </label>
+        <div style="font-size:12px;color:#7c7568;margin-bottom:10px">فعّل هذا إذا كانت طابعة الباركود الحرارية تُخرج ورقة فارغة عند الطباعة العادية. يحوّل الملصق إلى صورة ويرسلها كأوامر خام مباشرة لهذه الطابعة (منفصلة تماماً عن طابعة الفواتير وإعداداتها).</div>
+        <div id="escposbc-box" style="display:none">
+          <div style="margin-bottom:10px">
+            <label style="display:block;margin-bottom:6px;font-weight:700;font-size:13px">طريقة الاتصال</label>
+            <select id="set-escposbc-target" onchange="toggleEscposBcTarget()" style="width:100%;padding:9px;border:1px solid #e3ded2;border-radius:7px;font-size:14px">
+              <option value="usb">طابعة مثبّتة في ويندوز (USB)</option>
+              <option value="network">طابعة شبكة (IP)</option>
+            </select>
+          </div>
+          <div id="escposbc-usb-box" style="margin-bottom:10px">
+            <label style="display:block;margin-bottom:6px;font-weight:700;font-size:13px">اختر الطابعة</label>
+            <select id="set-escposbc-printer" style="width:100%;padding:9px;border:1px solid #e3ded2;border-radius:7px;font-size:14px"></select>
+          </div>
+          <div id="escposbc-net-box" style="display:none;margin-bottom:10px;gap:8px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:2;min-width:140px">
+              <label style="display:block;margin-bottom:6px;font-weight:700;font-size:13px">عنوان IP للطابعة</label>
+              <input id="set-escposbc-ip" type="text" placeholder="192.168.1.51" style="width:100%;padding:9px;border:1px solid #e3ded2;border-radius:7px;font-size:14px">
+            </div>
+            <div style="flex:1;min-width:90px;margin-top:8px">
+              <label style="display:block;margin-bottom:6px;font-weight:700;font-size:13px">المنفذ (Port)</label>
+              <input id="set-escposbc-port" type="number" value="9100" style="width:100%;padding:9px;border:1px solid #e3ded2;border-radius:7px;font-size:14px">
+            </div>
+          </div>
+          <div style="margin-bottom:10px">
+            <label style="display:block;margin-bottom:6px;font-weight:700;font-size:13px">عرض الطباعة بالنقاط (dots)</label>
+            <input id="set-escposbc-width" type="number" step="8" placeholder="يُحسب تلقائياً من مقاس الملصق إن تُرك فارغاً" style="width:100%;padding:9px;border:1px solid #e3ded2;border-radius:7px;font-size:14px">
+            <div style="font-size:11px;color:#7c7568;margin-top:5px">تقريباً = عرض الملصق بالملم × 8 (لطابعات 203dpi الشائعة). عدّل يدوياً إذا لم تُطابق الطباعة الفعلية.</div>
+          </div>
+          <label class="chk" style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:10px">
+            <input type="checkbox" id="set-escposbc-cut" checked> ✂️ قص/فصل بعد كل ملصق
+          </label>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" style="flex:1" onclick="escposBcTestPrint()">🏷️ اختبار طباعة ملصق</button>
+          </div>
+          <div id="escposbc-status" style="font-size:12px;color:#7c7568;margin-top:8px"></div>
+        </div>
+      </div>
+
       <div style="margin-bottom:14px">
         <label style="display:block;margin-bottom:6px;font-weight:700">🖼️ شعار المحل (يظهر أعلى الفاتورة)</label>
         <input type="file" id="logo-file" accept="image/*" onchange="uploadLogo(this.files[0])" style="display:none">
@@ -3090,13 +3133,33 @@ function printHTML(html, kind, opts){
     escposPrintReceipt(html, opts||{});
     return;
   }
+  // طابعة الباركود قد تكون جهازاً منفصلاً لا يدعم الطباعة العادية عبر ويندوز
+  // (طابعات ملصقات حرارية كثيرة تُخرج ورقة فارغة مع الطباعة العادية) —
+  // إن فُعِّل مسار ESC/POS الخاص بها نستخدمه بدل الطباعة عبر ويندوز.
+  if(kind==='barcode' && escposBcEnabled()){
+    escposPrintBarcode(html);
+    return;
+  }
   var printer = (kind==='barcode')
     ? (localStorage.getItem('pos_printer_bc')||'')
     : (localStorage.getItem('pos_printer_main')||'');
+  // مقاس الورقة الفعلي: لملصقات الباركود يجب أن يطابق مقاس الملصق المُعرَّف في @page
+  // وإلا سيستخدم الطابعة مقاسها الافتراضي (A4/Letter) فيظهر الملصق الصغير كنقطة تائهة
+  // في زاوية الصفحة الكبيرة — وهذا هو سبب "الورقة الفارغة" عند طباعة الباركود.
+  var pageSize;
+  if(kind==='barcode'){
+    var mode=localStorage.getItem('pos_label_mode')||'sheet';
+    if(mode==='roll'){
+      var sz=_labelSize();
+      pageSize={ width: Math.round(sz.w*1000), height: Math.round(sz.h*1000) }; // مم → ميكرون
+    } else {
+      pageSize='A4';
+    }
+  }
   // طباعة صامتة عبر نسخة سطح المكتب (Electron) إذا اختيرت طابعة
   if(window.posNative && window.posNative.silentPrint && printer){
     try{
-      window.posNative.silentPrint(printer, html).then(function(ok){
+      window.posNative.silentPrint(printer, html, {pageSize:pageSize}).then(function(ok){
         if(!ok){ showToast('تعذّرت الطباعة الصامتة — تحقّق من الطابعة','err'); }
       }).catch(function(){ _iframePrint(html); });
       return;
@@ -3219,10 +3282,10 @@ function fillPrinterSelects(){
   _renderPrinterSelects((window.POS_PRINTERS||[]).map(function(n){return {name:n,display:n};}));
 }
 function _renderPrinterSelects(list){
-  [['set-printer-main','pos_printer_main'],['set-printer-bc','pos_printer_bc'],['set-escpos-printer','pos_escpos_printer']].forEach(function(pair){
+  [['set-printer-main','pos_printer_main'],['set-printer-bc','pos_printer_bc'],['set-escpos-printer','pos_escpos_printer'],['set-escposbc-printer','pos_escposbc_printer']].forEach(function(pair){
     var sel=document.getElementById(pair[0]); if(!sel) return;
     var cur=localStorage.getItem(pair[1])||'';
-    var html = (pair[0]==='set-escpos-printer') ? '' : '<option value="">— إظهار نافذة الاختيار —</option>';
+    var html = (pair[0]==='set-escpos-printer'||pair[0]==='set-escposbc-printer') ? '' : '<option value="">— إظهار نافذة الاختيار —</option>';
     list.forEach(function(p){
       var nm=(p&&p.name!=null)?p.name:p; var dp=(p&&p.display)?p.display:nm;
       html+='<option value="'+nm+'"'+(nm===cur?' selected':'')+'>'+dp+((p&&p.default)?' (افتراضية)':'')+'</option>';
@@ -3282,6 +3345,13 @@ function loadSettingsForm(){
   document.getElementById('set-escpos-cut').checked = (localStorage.getItem('pos_escpos_cut')||'1')==='1';
   document.getElementById('set-escpos-drawer').checked = (localStorage.getItem('pos_escpos_drawer')||'0')==='1';
   toggleEscposUI(); toggleEscposTarget(); toggleEscposCustomWidth();
+  document.getElementById('set-escposbc-enable').checked = (localStorage.getItem('pos_escposbc_enable')||'0')==='1';
+  document.getElementById('set-escposbc-target').value = localStorage.getItem('pos_escposbc_target')||'usb';
+  document.getElementById('set-escposbc-ip').value = localStorage.getItem('pos_escposbc_ip')||'';
+  document.getElementById('set-escposbc-port').value = localStorage.getItem('pos_escposbc_port')||'9100';
+  document.getElementById('set-escposbc-width').value = localStorage.getItem('pos_escposbc_width')||'';
+  document.getElementById('set-escposbc-cut').checked = (localStorage.getItem('pos_escposbc_cut')||'1')==='1';
+  toggleEscposBcUI(); toggleEscposBcTarget();
 }
 function saveSettings(){
   localStorage.setItem('pos_receipt_width', document.getElementById('set-width').value);
@@ -3326,6 +3396,13 @@ function saveSettings(){
   localStorage.setItem('pos_escpos_width', _ewv);
   localStorage.setItem('pos_escpos_cut', document.getElementById('set-escpos-cut').checked?'1':'0');
   localStorage.setItem('pos_escpos_drawer', document.getElementById('set-escpos-drawer').checked?'1':'0');
+  localStorage.setItem('pos_escposbc_enable', document.getElementById('set-escposbc-enable').checked?'1':'0');
+  localStorage.setItem('pos_escposbc_target', document.getElementById('set-escposbc-target').value);
+  localStorage.setItem('pos_escposbc_printer', document.getElementById('set-escposbc-printer').value);
+  localStorage.setItem('pos_escposbc_ip', document.getElementById('set-escposbc-ip').value.trim());
+  localStorage.setItem('pos_escposbc_port', document.getElementById('set-escposbc-port').value||'9100');
+  localStorage.setItem('pos_escposbc_width', document.getElementById('set-escposbc-width').value.trim());
+  localStorage.setItem('pos_escposbc_cut', document.getElementById('set-escposbc-cut').checked?'1':'0');
   showToast('✔ تم حفظ الإعدادات','ok');
   applyFilter(); recalc();   // تطبيق العملة/الضريبة فوراً
 }
@@ -3387,6 +3464,58 @@ function escposOpenDrawerNow(){
     if(res && res.ok) showToast('💰 تم إرسال أمر فتح الدرج','ok');
     else showToast('تعذّر فتح الدرج: '+((res&&res.error)||''),'err');
   }).catch(function(e){ showToast('تعذّر فتح الدرج: '+e.message,'err'); });
+}
+
+// ═══ ESC/POS لطابعة الباركود (طابعة ملصقات منفصلة عن طابعة الفواتير) ═══
+function toggleEscposBcUI(){
+  var on=document.getElementById('set-escposbc-enable').checked;
+  document.getElementById('escposbc-box').style.display = on?'block':'none';
+}
+function toggleEscposBcTarget(){
+  var t=document.getElementById('set-escposbc-target').value;
+  document.getElementById('escposbc-usb-box').style.display = (t==='usb')?'block':'none';
+  document.getElementById('escposbc-net-box').style.display = (t==='network')?'flex':'none';
+}
+function _escposBcTarget(){
+  var type=localStorage.getItem('pos_escposbc_target')||'usb';
+  if(type==='network'){
+    return { type:'network', ip:localStorage.getItem('pos_escposbc_ip')||'', port:parseInt(localStorage.getItem('pos_escposbc_port')||'9100',10) };
+  }
+  return { type:'usb', printerName:localStorage.getItem('pos_escposbc_printer')||'' };
+}
+// عرض الطباعة بالنقاط: يستخدم القيمة المخصّصة إن وُجدت، وإلا يُحسب تلقائياً
+// من عرض الملصق (مم) على افتراض طابعة 203dpi الشائعة (≈8 نقطة/مم)
+function _escposBcWidthDots(){
+  var custom=parseInt(localStorage.getItem('pos_escposbc_width')||'',10);
+  if(custom>0) return custom;
+  var sz=_labelSize();
+  return Math.max(64, Math.round((sz.w||40)*8));
+}
+function escposBcEnabled(){ return (localStorage.getItem('pos_escposbc_enable')||'0')==='1' && window.posNative && window.posNative.escposPrint; }
+// يُستدعى بدل الطباعة العادية عند تفعيل ESC/POS لملصقات الباركود
+function escposPrintBarcode(html){
+  var st=document.getElementById('escposbc-status');
+  window.posNative.escposPrint({
+    html:html,
+    widthDots:_escposBcWidthDots(),
+    target:_escposBcTarget(),
+    cut:(localStorage.getItem('pos_escposbc_cut')||'1')==='1',
+    openDrawer:false
+  }).then(function(res){
+    if(res && res.ok){ if(st) st.textContent='✔ تم الإرسال للطابعة بنجاح'; }
+    else { var msg='تعذّرت طباعة الباركود عبر ESC/POS: '+((res&&res.error)||'خطأ غير معروف'); if(st) st.textContent=msg; showToast(msg,'err'); }
+  }).catch(function(e){ var msg='تعذّرت طباعة الباركود عبر ESC/POS: '+e.message; if(st) st.textContent=msg; showToast(msg,'err'); });
+}
+function escposBcTestPrint(){
+  if(!(window.posNative && window.posNative.escposPrint)){ showToast('هذه الميزة متاحة فقط في نسخة سطح المكتب','err'); return; }
+  var sz=_labelSize();
+  var html='<div style="font-family:Tahoma,Arial,sans-serif;text-align:center;direction:rtl;width:'+sz.w+'mm;padding:2px">'+
+    '<div style="font-size:12px;font-weight:900">ملصق اختبار</div>'+
+    code128SVG('123456789',14)+
+    '<div style="font-size:10px;margin-top:2px">123456789</div>'+
+    '</div>';
+  document.getElementById('escposbc-status').textContent='جارٍ الإرسال…';
+  escposPrintBarcode(html);
 }
 
 // ═══ الأمان: قفل بكلمة مرور ═══
@@ -3580,7 +3709,8 @@ function _doClearSelectedNow(sel){
      'pos_ui','pos_font','pos_printer','pos_receipt','pos_bc','pos_pad','pos_printmode',
      'pos_wb_enable','pos_wb_prefix','pos_wb_codelen','pos_wb_type','pos_wb_div',
      'pos_label_w','pos_label_h','pos_label_mode','pos_wstep',
-     'pos_escpos_enable','pos_escpos_target','pos_escpos_printer','pos_escpos_ip','pos_escpos_port','pos_escpos_width','pos_escpos_cut','pos_escpos_drawer']
+     'pos_escpos_enable','pos_escpos_target','pos_escpos_printer','pos_escpos_ip','pos_escpos_port','pos_escpos_width','pos_escpos_cut','pos_escpos_drawer',
+     'pos_escposbc_enable','pos_escposbc_target','pos_escposbc_printer','pos_escposbc_ip','pos_escposbc_port','pos_escposbc_width','pos_escposbc_cut']
      .forEach(function(k){ localStorage.removeItem(k); });
   }
   if(has('users')) localStorage.removeItem('pos_users');

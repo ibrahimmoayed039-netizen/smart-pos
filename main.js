@@ -494,6 +494,10 @@ ipcMain.handle('pos-list-printers', async () => {
 ipcMain.handle('pos-silent-print', async (evt, args) => {
   const printerName = (args && args.printerName) || '';
   const html = (args && args.html) || '';
+  // مقاس الصفحة القادم من الواجهة (مطابق لـ @page في الـ HTML). بدونه تستخدم
+  // Chromium مقاس الورقة الافتراضي للطابعة (عادة A4/Letter) بدل مقاس الملصق
+  // الفعلي، فيُطبع المحتوى الصغير في زاوية صفحة كبيرة وتبدو الورقة فارغة.
+  const pageSize = (args && args.pageSize) || undefined;
   return await new Promise((resolve) => {
     let win = new BrowserWindow({
       show: false,
@@ -510,12 +514,14 @@ ipcMain.handle('pos-silent-print', async (evt, args) => {
     win.webContents.once('did-finish-load', () => {
       setTimeout(() => {
         try {
-          win.webContents.print({
+          const printOpts = {
             silent: true,
             deviceName: printerName,
             printBackground: true,
             margins: { marginType: 'none' }
-          }, (success) => { finish(success); });
+          };
+          if (pageSize) printOpts.pageSize = pageSize;
+          win.webContents.print(printOpts, (success) => { finish(success); });
         } catch (e) { finish(false); }
       }, 350);
     });
