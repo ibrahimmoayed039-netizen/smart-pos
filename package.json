@@ -2,7 +2,7 @@
   "name": "smart-pos",
   "version": "1.0.0",
   "description": "نظام نقطة البيع - تطبيق سطح مكتب",
-  "main": "main.js",
+  "main": "src/main.js",
   "author": "Al Gulf POS",
   "license": "UNLICENSED",
   "scripts": {
@@ -22,12 +22,13 @@
     },
     "publish": null,
     "files": [
-      "main.js",
-      "preload.js",
-      "server.js",
-      "setup.html",
-      "backups.html",
-      "POS_System.html",
+      "src/main.js",
+      "src/preload.js",
+      "src/server.js",
+      "src/setup.html",
+      "src/backups.html",
+      "src/POS_System.html",
+      "src/fonts/**",
       "build/**"
     ],
     "extraResources": [
